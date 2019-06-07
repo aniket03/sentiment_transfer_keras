@@ -3,7 +3,7 @@ import pandas as pd
 
 if __name__ == '__main__':
     # Constants and file paths
-    par_data_dir = 'data/yelp/'
+    par_data_dir = '../data/sentiment_transfer_data/yelp/'
     yelp_train_pos_file = os.path.join(par_data_dir, 'sentiment.train.1')
     yelp_train_neg_file = os.path.join(par_data_dir, 'sentiment.train.0')
     yelp_val_pos_file = os.path.join(par_data_dir, 'sentiment.dev.1')
