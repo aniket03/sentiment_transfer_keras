@@ -14,25 +14,23 @@ def get_attribute_markers(pos_reviews_list, neg_reviews_list):
     threshold_for_attribute_marker = 15
 
     # Define count vectorizers
-    count_vect_pos = CountVectorizer(ngram_range=(1, 4))
-    count_vect_neg = CountVectorizer(ngram_range=(1, 4))
+    count_vect_pos = CountVectorizer(ngram_range=(1, 4), binary=True)
+    count_vect_neg = CountVectorizer(ngram_range=(1, 4), binary=True)
 
     # Get counts sparse matrices for pos and neg reviews
     pos_phrases_counts_sp_mat = count_vect_pos.fit_transform(pos_reviews_list)
     neg_phrases_counts_sp_mat = count_vect_neg.fit_transform(neg_reviews_list)
 
     # Get positive vocabulary and negative vocabulary
-    pos_phrases = count_vect_pos.vocabulary_
-    neg_phrases = count_vect_neg.vocabulary_
-    all_phrases = list(set(pos_phrases) | set(neg_phrases))
+    pos_phrases_indices_map = count_vect_pos.vocabulary_
+    neg_phrases_indices_map = count_vect_neg.vocabulary_
+
+    # Define set of all_phrases
+    all_phrases = list(set(pos_phrases_indices_map.keys()) | set(neg_phrases_indices_map.keys()))
 
     # Sum the counts of pos and neg phrases' counts across reviews
     pos_phrases_counts = np.squeeze(np.array(np.sum(pos_phrases_counts_sp_mat, axis=0)))
     neg_phrases_counts = np.squeeze(np.array(np.sum(neg_phrases_counts_sp_mat, axis=0)))
-
-    # Make dict mapping between phrase and their counts
-    pos_phrases_counts_dict = dict(zip(pos_phrases, pos_phrases_counts))
-    neg_phrases_counts_dict = dict(zip(neg_phrases, neg_phrases_counts))
 
     # Get attribute markers
     pos_attribute_markers = []
@@ -40,12 +38,12 @@ def get_attribute_markers(pos_reviews_list, neg_reviews_list):
 
     for phrase in all_phrases:
         try:
-            pos_count = pos_phrases_counts_dict[phrase]
+            pos_count = pos_phrases_counts[pos_phrases_indices_map[phrase]]
         except KeyError:
             pos_count = 0
 
         try:
-            neg_count = neg_phrases_counts_dict[phrase]
+            neg_count = neg_phrases_counts[neg_phrases_indices_map[phrase]]
         except KeyError:
             neg_count = 0
 
