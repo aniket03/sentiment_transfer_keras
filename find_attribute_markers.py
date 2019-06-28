@@ -58,6 +58,19 @@ def get_attribute_markers(pos_reviews_list, neg_reviews_list):
     return pos_attribute_markers, neg_attribute_markers
 
 
+def sort_attribute_markers_by_len(attibute_markers_list):
+    """
+    Sort attribute markers basis their length
+    """
+    attribute_markers_with_len = [[len(attribute_marker.split()), attribute_marker]
+                                  for attribute_marker in attibute_markers_list]
+    attribute_markers_with_len.sort()
+
+    attribute_markers_list = [attribute_marker_with_len[1] for attribute_marker_with_len in attribute_markers_with_len]
+
+    return attribute_markers_list
+
+
 if __name__ == '__main__':
     # Sys arguments
     dataset_name = sys.argv[1]  # Yelp, Amazon or Captions
@@ -77,6 +90,10 @@ if __name__ == '__main__':
     train_pos_reviews = list(train_pos_df[0])
     train_neg_reviews = list(train_neg_df[0])
     pos_attribute_markers, neg_attribute_markers = get_attribute_markers(train_pos_reviews, train_neg_reviews)
+
+    # Sort pos and neg attribute markers basis their length
+    pos_attribute_markers = sort_attribute_markers_by_len(pos_attribute_markers)
+    neg_attribute_markers = sort_attribute_markers_by_len(neg_attribute_markers)
 
     # Save the attribute markers
     pos_attribute_markers_df = pd.DataFrame()
