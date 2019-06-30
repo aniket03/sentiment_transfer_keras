@@ -3,8 +3,25 @@ import sys
 
 import numpy as np
 import pandas as pd
+import re
 
 from sklearn.feature_extraction.text import CountVectorizer
+
+
+def eliminate_stop_words(list_reviews):
+    stop_words = [
+        'is', 'are', 'was', 'were', 'and', 'be', 'could', 'did', 'do', 'does', 'even', 'had', 'has', 'have', 'in',
+        'or', 'he', 'she', 'his', 'her', 'the', 'their', 'them', 'they', 'this', 'to', 'went', '_num_', 'i', 'you',
+        'am', 'will', 'would', 'your', 'my', 'we', 'there', 'these'
+    ]
+
+    bounded_stop_words = ['\\b{}\\b'.format(stop_word) for stop_word in stop_words]
+    orred_stop_words = '|'.join(bounded_stop_words)
+    orred_stop_words_re = r'%s' % orred_stop_words
+
+    stop_words_removed_list_reviews = [re.sub(orred_stop_words_re, '', review) for review in list_reviews]
+
+    return stop_words_removed_list_reviews
 
 
 def get_attribute_markers(pos_reviews_list, neg_reviews_list):
@@ -86,9 +103,15 @@ if __name__ == '__main__':
     train_pos_df = pd.read_csv(train_pos_file, sep='\n', header=None)
     train_neg_df = pd.read_csv(train_neg_file, sep='\n', header=None)
 
-    # Get attribute markers
+    # Get list of pos and neg reviews
     train_pos_reviews = list(train_pos_df[0])
     train_neg_reviews = list(train_neg_df[0])
+
+    # Remove stop words
+    train_pos_reviews = eliminate_stop_words(train_pos_reviews)
+    train_neg_reviews = eliminate_stop_words(train_neg_reviews)
+
+    # Get attribute markers
     pos_attribute_markers, neg_attribute_markers = get_attribute_markers(train_pos_reviews, train_neg_reviews)
 
     # Sort pos and neg attribute markers basis their length
