@@ -3,7 +3,6 @@ import re
 import sys
 
 import pandas as pd
-from sklearn.utils import shuffle
 
 
 def build_attribute_markers_regex(list_attribute_markers):
