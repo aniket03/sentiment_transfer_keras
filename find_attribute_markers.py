@@ -31,8 +31,8 @@ def get_attribute_markers(pos_reviews_list, neg_reviews_list):
     threshold_for_attribute_marker = 15
 
     # Define count vectorizers
-    count_vect_pos = CountVectorizer(ngram_range=(1, 4), binary=True)
-    count_vect_neg = CountVectorizer(ngram_range=(1, 4), binary=True)
+    count_vect_pos = CountVectorizer(ngram_range=(1, 2), binary=True)
+    count_vect_neg = CountVectorizer(ngram_range=(1, 2), binary=True)
 
     # Get counts sparse matrices for pos and neg reviews
     pos_phrases_counts_sp_mat = count_vect_pos.fit_transform(pos_reviews_list)
