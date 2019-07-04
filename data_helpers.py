@@ -14,17 +14,24 @@ def read_content_only_file(file_path):
     return reviews
 
 
-# encode and pad sequences
 def encode_sequences(tokenizer, length, lines):
-    # integer encode sequences
+    """
+    Encode and pad sequences
+    :param tokenizer: Text tokenizer
+    :param length: Max sequence length
+    :param lines: Sentences to encode
+    """
     X = tokenizer.texts_to_sequences(lines)
-    # pad sequences with 0 values
     X = pad_sequences(X, maxlen=length, padding='post')
     return X
 
 
-# one hot encode target sequence
 def encode_output(sequences, vocab_size):
+    """
+    One hot encode target sequences
+    :param sequences: Tokenized sequences
+    :param vocab_size: Vocab size of original corpus
+    """
     ylist = list()
     for sequence in sequences:
         encoded = to_categorical(sequence, num_classes=vocab_size)
@@ -47,7 +54,6 @@ def input_n_output_text_encoding_generator(input_texts_list, output_texts_list,
     :param seq_len: The length each sequence should be of.
     :param vocab_size: The size of vocab that was used when fitting tokenizer
     :param batch_size: Batch size in which data is to be generated
-    :return:
     """
 
     text_index = 0
