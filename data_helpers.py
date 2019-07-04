@@ -4,6 +4,16 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 
 
+def read_content_only_file(file_path):
+
+    with open(file_path) as f:
+        x = f.read()
+        reviews = x.split('\n')
+    reviews = reviews[1: -1]  # Since 1st row would be taken up be header and last is blank
+
+    return reviews
+
+
 # encode and pad sequences
 def encode_sequences(tokenizer, length, lines):
     # integer encode sequences

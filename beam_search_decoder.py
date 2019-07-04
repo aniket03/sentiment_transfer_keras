@@ -27,18 +27,18 @@ def beam_search(probabilities_matrix, beam_width):
     # Apply beam search for remaining time steps
     for step_ind in range(1, max_seq_len):
 
-        print ("This is step {} bro".format(step_ind))
+        # print ("This is step {} bro".format(step_ind))
 
         # Prepare log of prob_vector at t'th time step for addition with log_beam_sequence_probs
         prob_vector = probabilities_matrix[step_ind, :].reshape(1, vocab_size)
         prob_vector = np.repeat(prob_vector, beam_width, axis=0)  # O/p mat: (beam_width x vocab_size)
         log_prob_vector = np.log(prob_vector)
-        print ("Shape of log_prob_vector", log_prob_vector.shape)
+        # print ("Shape of log_prob_vector", log_prob_vector.shape)
 
         # Reshape log_beam_sequences_probs for addition with log_prob_vector
         log_beam_sequences_probs = np.repeat(log_beam_sequences_probs, vocab_size, axis=0)  # O/p (vcb_size x bm_width)
         log_beam_sequences_probs = np.transpose(log_beam_sequences_probs)  # O/p mat: (beam_width x vocab_size)
-        print ("Shape of log_beam_sequence_prob", log_beam_sequences_probs.shape)
+        # print ("Shape of log_beam_sequence_prob", log_beam_sequences_probs.shape)
 
         # Add log_beam_sequences_probs and log_prob_vector
         next_step_log_probs = log_beam_sequences_probs + log_prob_vector
@@ -54,7 +54,7 @@ def beam_search(probabilities_matrix, beam_width):
             [int(flattened_ind / vocab_size), flattened_ind % vocab_size]
             for flattened_ind in top_beam_indices_flattened
         ])
-        print ("Shape of top_beam_indices", top_beam_indices.shape)
+        # print ("Shape of top_beam_indices", top_beam_indices.shape)
 
         values_to_fetch_from_prev_step = top_beam_indices[:, 0]
         values_to_add_in_curr_step = top_beam_indices[:, 1]
@@ -65,14 +65,10 @@ def beam_search(probabilities_matrix, beam_width):
             new_candidate_sequences.append(candidate_seq)
 
         candidate_sequences = new_candidate_sequences.copy()
-        print ("Elements in candidate sequences after step completion", candidate_sequences)
+        # print ("Elements in candidate sequences after step completion", candidate_sequences)
 
     max_likely_seq_ind = np.argmax(log_beam_sequences_probs)
     max_likely_sequence = candidate_sequences[max_likely_seq_ind]
-
-    print ("Final log beam sequence probs", log_beam_sequences_probs)
-    print ("Final Candidate sequences", candidate_sequences)
-    print ("Max likely sequence", max_likely_sequence)
 
     return max_likely_sequence
 

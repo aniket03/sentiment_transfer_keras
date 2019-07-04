@@ -1,5 +1,6 @@
 import os
 import sys
+import pickle
 
 import pandas as pd
 
@@ -10,23 +11,13 @@ from keras.layers import Embedding, GRU, merge, RepeatVector, TimeDistributed, D
 from keras.preprocessing.text import Tokenizer
 from sklearn.model_selection import train_test_split
 
-from data_helpers import input_n_output_text_encoding_generator
+from data_helpers import input_n_output_text_encoding_generator, read_content_only_file
 
 
 def create_tokenizer(lines):
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(lines)
     return tokenizer
-
-
-def read_content_only_file(file_path):
-
-    with open(file_path) as f:
-        x = f.read()
-        reviews = x.split('\n')
-    reviews = reviews[1: -1]  # Since 1st row would be taken up be header and last is blank
-
-    return reviews
 
 
 def build_delete_only_nn(seq_length, embedding_dim, vocab_size):
@@ -70,12 +61,14 @@ if __name__ == '__main__':
     epochs_patience_before_stopping = 7
 
     # File and directory paths
+    # par_data_dir = os.path.join('/content/drive/My Drive/deep_learning_work', dataset_name)  # Used on Google colab
     par_data_dir = os.path.join('../data/sentiment_transfer_data', dataset_name)
     train_pos_file = os.path.join(par_data_dir, 'sentiment.train.1')
     train_neg_file = os.path.join(par_data_dir, 'sentiment.train.0')
     train_pos_content_file = os.path.join(par_data_dir, 'sentiment.train.content.1')
     train_neg_content_file = os.path.join(par_data_dir, 'sentiment.train.content.0')
     model_file_path = os.path.join(par_data_dir, 'style_transfer_model.hdf5')
+    tokenizer_file_path = os.path.join(par_data_dir, 'reviews_tokenizer.pkl')
 
     # Read the reviews files
     train_pos_df = pd.read_csv(train_pos_file, sep='\n', header=None)
@@ -98,6 +91,8 @@ if __name__ == '__main__':
     reviews_vocab_size = len(reviews_tokenizer.word_index) + 1
     print ('Maximum len of review', reviews_max_len)
     print ('Reviews vocab size', reviews_vocab_size)
+    with open(tokenizer_file_path, 'wb') as fp:
+        pickle.dump(reviews_tokenizer, fp, protocol=4)
 
     # Split complete_reviews_list, complete_contents_list and attribute_labels into train and val set
     train_reviews_list, val_reviews_list, train_contents_list, val_contents_list, \
