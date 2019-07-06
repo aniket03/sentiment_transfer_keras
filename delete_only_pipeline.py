@@ -5,9 +5,10 @@ import pickle
 import pandas as pd
 
 from keras import Input
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.engine import Model
 from keras.layers import Embedding, GRU, merge, RepeatVector, TimeDistributed, Dense, Flatten
+from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
 from sklearn.model_selection import train_test_split
 
@@ -58,7 +59,9 @@ if __name__ == '__main__':
     batch_size = 256
     random_state = 3
     no_epochs = 100
-    epochs_patience_before_stopping = 7
+    initial_lr = 1e-2
+    epochs_patience_before_decay = 2
+    epochs_patience_before_stopping = 5
 
     # File and directory paths
     # par_data_dir = os.path.join('/content/drive/My Drive/deep_learning_work', dataset_name)  # Used on Google colab
@@ -124,15 +127,19 @@ if __name__ == '__main__':
     #     print ("Attribute labels array shape", X[1].shape)
     #     print ("Output encoding shape", Y.shape)
 
-    # Train the model
+    # Compile the model
     model = build_delete_only_nn(reviews_max_len, text_embed_dim, reviews_vocab_size)
-    model.compile(optimizer='adadelta', loss='categorical_crossentropy')
+    sgd = SGD(lr=initial_lr, momentum=0.9)
+    model.compile(optimizer=sgd, loss='categorical_crossentropy')
     model.summary()
 
-    # Model training begins
+    # Training and validation steps
     steps_per_epoch = int(len(train_reviews_list) / batch_size)
     val_steps = int(len(val_reviews_list)/ batch_size)
 
+    # Define model training call backs
+    reduce_lr_on_plateau = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=epochs_patience_before_decay,
+                                             verbose=1, min_lr=1e-7)
     checkpointer = ModelCheckpoint(model_file_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
     early_stopper = EarlyStopping(monitor='val_loss', patience=epochs_patience_before_stopping)
 
