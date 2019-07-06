@@ -8,8 +8,23 @@ import pandas as pd
 from keras.models import load_model
 from sklearn.utils import shuffle
 
-from beam_search_decoder import beam_search
 from data_helpers import read_content_only_file, encode_sequences
+
+
+def remove_repeated_words_from_seq(input_sentence):
+    words_list = input_sentence.split()
+    words_stack = []
+
+    for word in words_list:
+        # If last word entered in stack is same as present word in list then continue
+        if len(words_stack) >=1 and word == words_stack[-1]:
+            continue
+        else:
+            words_stack.append(word)
+
+    final_string = ' '.join(words_stack)
+    return final_string
+
 
 if __name__ == '__main__':
     # Sys arguments
@@ -54,6 +69,10 @@ if __name__ == '__main__':
     test_attribute_labels = test_attribute_labels[:10]
     test_attribute_labels = np.array(test_attribute_labels)
 
+    # Revert the attribute labels to switch sentiment
+    for ind in range(len(test_attribute_labels)):
+        test_attribute_labels[ind] = 1 if test_attribute_labels[ind] is 0 else 1
+
     # Tokenize
     with open(tokenizer_file_path, 'rb') as fp:
         reviews_tokenizer = pickle.load(fp)
@@ -68,7 +87,7 @@ if __name__ == '__main__':
         [test_sequences_arr, test_attribute_labels]
     )
     for test_review, test_content, text_gen_prob_mat in zip(test_reviews_list, test_contents_list, text_gen_probs):
-        generated_seq = beam_search(text_gen_prob_mat, 10)
+        generated_seq = np.argmax(text_gen_prob_mat, axis=1)
         generated_word_seq = []
         for word_ind in generated_seq:
             try:
@@ -76,8 +95,9 @@ if __name__ == '__main__':
             except KeyError:
                 generated_word_seq.append('')
         generated_text = " ".join(generated_word_seq)
+        processed_generated_text = remove_repeated_words_from_seq(generated_text)
 
         print ("\n")
         print ("Actual review", test_review)
         print ("Content only", test_content)
-        print ("Generated text", generated_text)
+        print ("Generated text", processed_generated_text)
