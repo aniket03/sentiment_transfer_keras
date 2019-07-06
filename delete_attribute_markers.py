@@ -19,16 +19,28 @@ def build_attribute_markers_regex(list_attribute_markers):
     return attribute_markers_re
 
 
-def delete_attribute_content(input_text, attribute_markers_re):
+def delete_attribute_content(input_text_list, attribute_markers_re):
     """
-    Given input text and attribute_markers_re, finds the attribute_marker that is present in the input_text,
-    replaces that with blank string, and returns the content words string, with the attribute markers present.
+    Given input text_list and attribute_markers_re, finds the attribute_marker that is present in each input_text,
+    replaces that with blank string, and returns the content words strings list.
     """
+    content_only_list = []
+    for input_text in input_text_list:
+        content_words_text = re.sub(attribute_markers_re, '', input_text)
+        content_only_list.append(content_words_text)
 
-    content_words_text = re.sub(attribute_markers_re, '', input_text)
-    # attribute_markers_matched = re.findall(attribute_markers_re, input_text)
+    return content_only_list
 
-    return content_words_text
+
+def write_content_only_sentences_file(content_only_list, file_path):
+    """
+    Writes the content_only_sentences list to the appropriate file path
+    :param content_only_list: List of content only sentences
+    :param file_path: file_path to write to
+    """
+    content_df = pd.DataFrame()
+    content_df['only_content_part'] = content_only_list
+    content_df.to_csv(file_path, index=False)
 
 
 if __name__ == '__main__':
@@ -40,16 +52,26 @@ if __name__ == '__main__':
     par_data_dir = os.path.join('../data/sentiment_transfer_data', dataset_name)
     train_pos_file = os.path.join(par_data_dir, 'sentiment.train.1')
     train_neg_file = os.path.join(par_data_dir, 'sentiment.train.0')
+    val_pos_file = os.path.join(par_data_dir, 'sentiment.dev.1')
+    val_neg_file = os.path.join(par_data_dir, 'sentiment.dev.0')
+    test_pos_file = os.path.join(par_data_dir, 'sentiment.test.1')
+    test_neg_file = os.path.join(par_data_dir, 'sentiment.test.0')
     pos_attribute_markers_file = os.path.join(par_data_dir, 'pos_attribute_markers.csv')
     neg_attribute_markers_file = os.path.join(par_data_dir, 'neg_attribute_markers.csv')
     train_pos_content_file = os.path.join(par_data_dir, 'sentiment.train.content.1')
     train_neg_content_file = os.path.join(par_data_dir, 'sentiment.train.content.0')
+    val_pos_content_file = os.path.join(par_data_dir, 'sentiment.dev.content.1')
+    val_neg_content_file = os.path.join(par_data_dir, 'sentiment.dev.content.0')
+    test_pos_content_file = os.path.join(par_data_dir, 'sentiment.test.content.1')
+    test_neg_content_file = os.path.join(par_data_dir, 'sentiment.test.content.0')
 
     # Read the reviews files
-    train_pos_df = pd.read_csv(train_pos_file, sep='\n', header=None)
-    train_neg_df = pd.read_csv(train_neg_file, sep='\n', header=None)
-    train_pos_reviews = list(train_pos_df[0])
-    train_neg_reviews = list(train_neg_df[0])
+    train_pos_reviews = pd.read_csv(train_pos_file, sep='\n', header=None)[0]
+    train_neg_reviews = pd.read_csv(train_neg_file, sep='\n', header=None)[0]
+    val_pos_reviews = pd.read_csv(val_pos_file, sep='\n', header=None)[0]
+    val_neg_reviews = pd.read_csv(val_neg_file, sep='\n', header=None)[0]
+    test_pos_reviews = pd.read_csv(test_pos_file, sep='\n', header=None)[0]
+    test_neg_reviews = pd.read_csv(test_neg_file, sep='\n', header=None)[0]
 
     # Read the attribute markers' file
     pos_attribute_markers_df = pd.read_csv(os.path.join(par_data_dir, 'pos_attribute_markers.csv'))
@@ -64,27 +86,17 @@ if __name__ == '__main__':
     print ("Neg attribute marker regex built")
 
     # Delete attribute content from positive reviews
-    pos_reviews_content_list = []
-    for pos_review in train_pos_reviews:
-        content_phrase = delete_attribute_content(pos_review, pos_attribute_markers_re)
-        pos_reviews_content_list.append(content_phrase)
-
-    # Write pos reviews content only part to file
-    pos_content_df = pd.DataFrame()
-    pos_content_df['only_content_part'] = pos_reviews_content_list
-    pos_content_df.to_csv(train_pos_content_file, index=False)
-
-    print ("Pos reviews content and attribute markers separated")
+    train_pos_reviews_content_list = delete_attribute_content(train_pos_reviews, pos_attribute_markers_re)
+    write_content_only_sentences_file(train_pos_reviews_content_list, train_pos_content_file)
+    val_pos_reviews_content_list = delete_attribute_content(val_pos_reviews, pos_attribute_markers_re)
+    write_content_only_sentences_file(val_pos_reviews_content_list, val_pos_content_file)
+    test_pos_reviews_content_list = delete_attribute_content(test_pos_reviews, pos_attribute_markers_re)
+    write_content_only_sentences_file(test_pos_reviews_content_list, test_pos_content_file)
 
     # Delete attribute content from negative reviews
-    neg_reviews_content_list = []
-    for neg_review in train_neg_reviews:
-        content_phrase = delete_attribute_content(neg_review, neg_attribute_markers_re)
-        neg_reviews_content_list.append(content_phrase)
-
-    # Write neg reviews content only part to file
-    neg_content_df = pd.DataFrame()
-    neg_content_df['only_content_part'] = neg_reviews_content_list
-    neg_content_df.to_csv(train_neg_content_file, index=False)
-
-    print ("Neg reviews content and attribute markers separated")
+    train_neg_reviews_content_list = delete_attribute_content(train_neg_reviews, neg_attribute_markers_re)
+    write_content_only_sentences_file(train_neg_reviews_content_list, train_neg_content_file)
+    val_neg_reviews_content_list = delete_attribute_content(val_neg_reviews, neg_attribute_markers_re)
+    write_content_only_sentences_file(val_neg_reviews_content_list, val_neg_content_file)
+    test_neg_reviews_content_list = delete_attribute_content(test_neg_reviews, neg_attribute_markers_re)
+    write_content_only_sentences_file(test_neg_reviews_content_list, test_neg_content_file)

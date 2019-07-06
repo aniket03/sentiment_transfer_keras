@@ -96,23 +96,35 @@ if __name__ == '__main__':
     par_data_dir = os.path.join('../data/sentiment_transfer_data', dataset_name)
     train_pos_file = os.path.join(par_data_dir, 'sentiment.train.1')
     train_neg_file = os.path.join(par_data_dir, 'sentiment.train.0')
+    val_pos_file = os.path.join(par_data_dir, 'sentiment.dev.1')
+    val_neg_file = os.path.join(par_data_dir, 'sentiment.dev.0')
     pos_attribute_markers_file = os.path.join(par_data_dir, 'pos_attribute_markers.csv')
     neg_attribute_markers_file = os.path.join(par_data_dir, 'neg_attribute_markers.csv')
 
     # Read the reviews files
     train_pos_df = pd.read_csv(train_pos_file, sep='\n', header=None)
     train_neg_df = pd.read_csv(train_neg_file, sep='\n', header=None)
+    val_pos_df = pd.read_csv(val_pos_file, sep='\n', header=None)
+    val_neg_df = pd.read_csv(val_neg_file, sep='\n', header=None)
 
     # Get list of pos and neg reviews
     train_pos_reviews = list(train_pos_df[0])
     train_neg_reviews = list(train_neg_df[0])
+    val_pos_reviews = list(val_pos_df[0])
+    val_neg_reviews = list(val_neg_df[0])
 
     # Remove stop words
     train_pos_reviews = eliminate_stop_words(train_pos_reviews)
     train_neg_reviews = eliminate_stop_words(train_neg_reviews)
+    val_pos_reviews = eliminate_stop_words(val_pos_reviews)
+    val_neg_reviews = eliminate_stop_words(val_neg_reviews)
+
+    # Combine train and val reviews
+    pos_reviews = train_pos_reviews + val_pos_reviews
+    neg_reviews = train_neg_reviews + val_neg_reviews
 
     # Get attribute markers
-    pos_attribute_markers, neg_attribute_markers = get_attribute_markers(train_pos_reviews, train_neg_reviews)
+    pos_attribute_markers, neg_attribute_markers = get_attribute_markers(pos_reviews, neg_reviews)
 
     # Sort pos and neg attribute markers basis their length
     pos_attribute_markers = sort_attribute_markers_by_len(pos_attribute_markers)

@@ -10,7 +10,7 @@ from keras.engine import Model
 from keras.layers import Embedding, GRU, merge, RepeatVector, TimeDistributed, Dense, Flatten
 from keras.optimizers import SGD
 from keras.preprocessing.text import Tokenizer
-from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 from data_helpers import input_n_output_text_encoding_generator, read_content_only_file
 
@@ -68,25 +68,39 @@ if __name__ == '__main__':
     par_data_dir = os.path.join('../data/sentiment_transfer_data', dataset_name)
     train_pos_file = os.path.join(par_data_dir, 'sentiment.train.1')
     train_neg_file = os.path.join(par_data_dir, 'sentiment.train.0')
+    val_pos_file = os.path.join(par_data_dir, 'sentiment.dev.1')
+    val_neg_file = os.path.join(par_data_dir, 'sentiment.dev.0')
     train_pos_content_file = os.path.join(par_data_dir, 'sentiment.train.content.1')
     train_neg_content_file = os.path.join(par_data_dir, 'sentiment.train.content.0')
+    val_pos_content_file = os.path.join(par_data_dir, 'sentiment.dev.content.1')
+    val_neg_content_file = os.path.join(par_data_dir, 'sentiment.dev.content.0')
     model_file_path = os.path.join(par_data_dir, 'style_transfer_model.hdf5')
     tokenizer_file_path = os.path.join(par_data_dir, 'reviews_tokenizer.pkl')
 
     # Read the reviews files
-    train_pos_df = pd.read_csv(train_pos_file, sep='\n', header=None)
-    train_neg_df = pd.read_csv(train_neg_file, sep='\n', header=None)
-    train_pos_reviews = list(train_pos_df[0])
-    train_neg_reviews = list(train_neg_df[0])
-    complete_reviews_list = train_pos_reviews + train_neg_reviews
-    attribute_labels = [1] * len(train_pos_reviews) + [0] * len(train_neg_reviews)
-    print ("Complete reviews list", len(complete_reviews_list))
+    train_pos_reviews = list(pd.read_csv(train_pos_file, sep='\n', header=None)[0])
+    train_neg_reviews = list(pd.read_csv(train_neg_file, sep='\n', header=None)[0])
+    val_pos_reviews = list(pd.read_csv(val_pos_file, sep='\n', header=None)[0])
+    val_neg_reviews = list(pd.read_csv(val_neg_file, sep='\n', header=None)[0])
+
+    # Concatenate separate train-pos train-neg and val-pos val-neg
+    train_reviews_list = train_pos_reviews + train_neg_reviews
+    val_reviews_list = val_pos_reviews + val_neg_reviews
+    complete_reviews_list = train_reviews_list + val_reviews_list
+    train_attribute_labels = [1] * len(train_pos_reviews) + [0] * len(train_neg_reviews)
+    val_attribute_labels = [1] * len(val_pos_reviews) + [0] * len(val_neg_reviews)
+    print ("Complete train reviews list", len(train_reviews_list))
+    print ("Complete val reviews list", len(val_reviews_list))
 
     # Read the content only files
     train_pos_contents_list = read_content_only_file(train_pos_content_file)
     train_neg_contents_list = read_content_only_file(train_neg_content_file)
-    complete_contents_list = train_pos_contents_list + train_neg_contents_list
-    print ("Complete content only sentences list", len(complete_contents_list))
+    val_pos_contents_list = read_content_only_file(val_pos_content_file)
+    val_neg_contents_list = read_content_only_file(val_neg_content_file)
+    train_contents_list = train_pos_contents_list + train_neg_contents_list
+    val_contents_list = val_pos_contents_list + val_neg_contents_list
+    print ("Complete train content only sentences list", len(train_contents_list))
+    print ("Complete val content only sentences list", len(val_contents_list))
 
     # prepare reviews tokenizer
     reviews_tokenizer = create_tokenizer(complete_reviews_list)
@@ -97,12 +111,13 @@ if __name__ == '__main__':
     with open(tokenizer_file_path, 'wb') as fp:
         pickle.dump(reviews_tokenizer, fp, protocol=4)
 
-    # Split complete_reviews_list, complete_contents_list and attribute_labels into train and val set
-    train_reviews_list, val_reviews_list, train_contents_list, val_contents_list, \
-        train_attribute_labels, val_attribute_labels = train_test_split(
-            complete_reviews_list, complete_contents_list, attribute_labels, shuffle=True, test_size=0.1,
-            random_state=random_state
-        )
+    # Shuffle {train/ val}_reviews_list, {train/ val}_contents_list and {train/ val}_attribute_labels
+    train_reviews_list, train_contents_list, train_attribute_labels = shuffle(
+        train_reviews_list, train_contents_list, train_attribute_labels, random_state=random_state
+    )
+    val_reviews_list, val_contents_list, val_attribute_labels = shuffle(
+        val_reviews_list, val_contents_list, val_attribute_labels, random_state=random_state
+    )
 
     print ("Len of train reviews list", len(train_reviews_list))
     print ("Len of val reviews list", len(val_reviews_list))
@@ -129,8 +144,7 @@ if __name__ == '__main__':
 
     # Compile the model
     model = build_delete_only_nn(reviews_max_len, text_embed_dim, reviews_vocab_size)
-    sgd = SGD(lr=initial_lr, momentum=0.9)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy')
+    model.compile(optimizer='adadelta', loss='categorical_crossentropy')
     model.summary()
 
     # Training and validation steps
