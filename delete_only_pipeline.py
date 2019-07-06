@@ -8,7 +8,7 @@ from keras import Input
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.engine import Model
 from keras.layers import Embedding, GRU, merge, RepeatVector, TimeDistributed, Dense, Flatten
-from keras.optimizers import SGD
+from keras.models import load_model
 from keras.preprocessing.text import Tokenizer
 from sklearn.utils import shuffle
 
@@ -143,7 +143,10 @@ if __name__ == '__main__':
     #     print ("Output encoding shape", Y.shape)
 
     # Compile the model
-    model = build_delete_only_nn(reviews_max_len, text_embed_dim, reviews_vocab_size)
+    if os.path.exists(model_file_path):
+        model = load_model(model_file_path)
+    else:
+        model = build_delete_only_nn(reviews_max_len, text_embed_dim, reviews_vocab_size)
     model.compile(optimizer='adadelta', loss='categorical_crossentropy')
     model.summary()
 
