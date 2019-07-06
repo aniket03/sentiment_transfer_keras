@@ -45,3 +45,4 @@ Some not so good results 😔
 
 ## More to come
 1. Will soon try to add to the repo `Delete and retrieve pipeline`, the second sentiment style transfer approach as shared in the paper.
+2. `Delete Only` implementation which uses `beam search` decoding strategy.
