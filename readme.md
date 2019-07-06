@@ -24,5 +24,24 @@ Presently, the repository implements **Delete Only** pipeline explained in the a
 5. Finally, to check how well the model got trained run the script `prediction_pipeline.py`, to obtain predictions from the learnt model.
    Presently, the pipeline uses greedy decoding strategy instead of beam search to generate the final text sequence.
 
+## Sample results
+
+Some good Results 😄
+
+**Original review**: this place is just ok <br>
+**Reverted review**: this place is awesome <br>
+
+**Original review**: i had a horrible experience , and i sadly would not come back <br>
+**Reverted review**: i had a great experience and i would definitely back <br>
+
+Some not so good results 😔
+
+**Original review**: no stars is what in want to give <br>
+**Reverted review**: thank stars is what to want to <br>
+
+**Original review**: this is the worst walmart neighborhood market out of any of them <br>
+**Reverted review**: this is the most authentic store out of them <br>
+
+
 ## More to come
 1. Will soon try to add to the repo `Delete and retrieve pipeline`, the second sentiment style transfer approach as shared in the paper.

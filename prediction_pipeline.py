@@ -64,9 +64,9 @@ if __name__ == '__main__':
     )
 
     # Just for test purpose
-    test_reviews_list = test_reviews_list[:10]
-    test_contents_list = test_contents_list[:10]
-    test_attribute_labels = test_attribute_labels[:10]
+    test_reviews_list = test_reviews_list[:30]
+    test_contents_list = test_contents_list[:30]
+    test_attribute_labels = test_attribute_labels[:30]
     test_attribute_labels = np.array(test_attribute_labels)
 
     # Revert the attribute labels to switch sentiment
@@ -98,6 +98,6 @@ if __name__ == '__main__':
         processed_generated_text = remove_repeated_words_from_seq(generated_text)
 
         print ("\n")
-        print ("Actual review", test_review)
-        print ("Content only", test_content)
-        print ("Generated text", processed_generated_text)
+        print ("Actual review: ", test_review)
+        # print ("Content only", test_content)
+        print ("Generated text: ", processed_generated_text)
