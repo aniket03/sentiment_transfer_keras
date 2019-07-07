@@ -31,6 +31,9 @@ Some good Results 😄
 **Original review**: this place is just ok <br>
 **Reverted review**: this place is awesome <br>
 
+**Original review**: now the food , drinks , and desserts are amazing <br>
+**Reverted review**: now the food drinks and desserts are terrible <br>
+
 **Original review**: i had a horrible experience , and i sadly would not come back <br>
 **Reverted review**: i had a great experience and i would definitely back <br>
 
