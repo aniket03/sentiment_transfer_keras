@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     # Revert the attribute labels to switch sentiment
     for ind in range(len(test_attribute_labels)):
-        test_attribute_labels[ind] = 1 if test_attribute_labels[ind] is 0 else 1
+        test_attribute_labels[ind] = 1 if test_attribute_labels[ind] == 0 else 0
 
     # Tokenize
     with open(tokenizer_file_path, 'rb') as fp:
