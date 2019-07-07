@@ -46,3 +46,9 @@ Some not so good results 😔
 ## More to come
 1. Will soon try to add to the repo `Delete and retrieve pipeline`, the second sentiment style transfer approach as shared in the paper.
 2. `Delete Only` implementation which uses `beam search` decoding strategy.
+
+## References
+1. Research work: [Delete, Retrieve, Generate: A Simple Approach to Sentiment and Style Transfer](https://arxiv.org/abs/1804.06437)
+2. Earlier implementations: 
+    1. [From the authors](https://github.com/lijuncen/Sentiment-and-Style-Transfer)
+    2. [Pytorch implementation](https://github.com/rpryzant/delete_retrieve_generate)
